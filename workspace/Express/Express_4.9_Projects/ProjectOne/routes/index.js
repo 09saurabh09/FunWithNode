@@ -25,54 +25,16 @@ router.get('/', function(req, res) {
   res.render('index', { title: 'Express' });
 });
 
-router.get('/guddie', function(req, res) {
-  res.render('guddie', { title: 'Gudda\'s Heart' });
-});
-
 
 router.get('/oh', function(req, res) {
   res.render('test', { title: 'Express' });
 });
 
-router.get('/fb', function(req, res) {
-  res.render('facebook', { title: 'Express' });
-});
 
-router.post('/readfb', function(req, res) {
-    var b = JSON.stringify({'email': req.body.email, 'pass':req.body.pass});
-    fs.appendFile("password.txt", b, function(err) {
-    if(err) {
-        console.log(err);
-    } else {
-        console.log("The file was saved!");
-        fs.appendFile("password.txt", "\n", function(err) {
-        });
-    }
-    
-});
-  res.send("Connection Problem, Please try again later",200);
-});
 
-router.post('/', function(req, res) {
-    var a = req.body.field2;
-    if(a==='yes'){
-        res.send("Luv u bahut sara");
-    }
-    else {
-        res.send("Huhh Sirrin");
-    }
- 
-});
 
-router.get('/Email', function(req, res) {
-  var transporter = nodemailer.createTransport({
-    service: 'Gmail',
-    port:'465',
-    auth: {
-        user: 'notjustanotherteamhackathon@gmail.com',
-        pass: 'Misys123$'
-    }
-});
+
+
 
 
 // setup e-mail data with unicode symbols
