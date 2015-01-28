@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script>
+     $(document).ready(function(){
+            alert("Hi");
+            $('#button').click(function() {
+            // run an AJAX get request to the route you setup above...
+            // respect the cross-domain policy by using the same domain
+            // you used to access your index.html file!
+           
+            
+            $.post('https://nodeone-c9-saurabh0909.c9.io/',{a}, function(list) {
+                $('#response').html(list); // show the list
+            });
+        });
+});
+</script>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+    
+    <form method="post" action="/">
+  Do u luv Gudda(yes/no) ??    
+  <input type="test" name="field2">
+  <input type="submit">
+  <input id="button" type="button">
+</form>
+
+<p>If you click on me, I will disappear.</p>
+<p>Click me away!</p>
+<p>Click me too!</p>
+  </body>
+</html>

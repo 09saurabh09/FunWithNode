@@ -1,0 +1,200 @@
+<html>
+<head>
+<style>
+.table, .td, .th {
+    border: 1px solid green;
+    width:350px;
+}
+
+.th {
+    background-color: green;
+    color: white;
+}
+</style>
+</head>
+
+<body>
+
+<script src="//code.jquery.com/jquery-2.0.3.js"></script>
+
+<script>
+
+var stocks = {'GOOGLE':'goog',
+    'MICROSOFT':'msft',
+    'FACEBOOK':'fb'
+};
+console.log(stocks);
+
+var raw_url = 'https://www.betawebapi.dowjones.com/fintech/data/api/v1/quotes/';
+
+var final = [];
+
+
+/*
+var xmlhttp;
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+    var a =xmlhttp.responseText;
+    console.log(a);
+    }
+  }
+xmlhttp.open("GET","http://betawebapi.dowjones.com/fintech/data/api/v1/quotes/NOK",true);
+xmlhttp.send();
+
+*/
+//http://stackoverflow.com/questions/6114436/access-control-allow-origin-error-sending-a-jquery-post-to-google-apis
+//http://stackoverflow.com/questions/11762856/can-you-use-appendchild-to-add-an-element-to-a-div-that-had-a-dynamically-create
+//http://www.freshdesignweb.com/free-css-tables.html
+//https://developer.yahoo.com/yql/console/?q=show%20tables&env=store://datatables.org/alltableswithkeys#h=select+*+from+yahoo.finance.quotes+where+symbol+in+%28%22goog%22%29
+function tableCreate(){
+    var body = document.body,
+        tbl  = document.createElement('table');
+
+    var header = tbl.createTHead(); 
+    tbl.className ="table";
+    var row = header.insertRow();
+    row.className ="th"; 
+    var th = row.insertCell();
+    
+    th.innerHTML = "<b>Name</b>";
+    th = row.insertCell();
+    th.innerHTML = "<b>Symbol</b>";
+    th = row.insertCell();
+    th.innerHTML = "<b>Price</b>";
+    th = row.insertCell();
+    th.innerHTML = "<b>Var</b>";
+    
+    for(var i = 0; i < Object.keys(stocks).length; i++){
+        var tr = tbl.insertRow();
+        for(var j = 0; j < 4; j++){
+                var td = tr.insertCell();
+                if(j==0)
+                {
+                    td.appendChild(document.createTextNode(Object.keys(stocks)[i]));
+                }
+                else if (j==1)
+                {
+                    td.appendChild(document.createTextNode(stocks[Object.keys(stocks)[i]]));
+                }
+                
+                else if (j==2)
+                {   //td.appendChild('<span class="foo">' + 5 + '</span>');
+                    var text = document.createElement("p");
+                    text.id = Object.keys(stocks)[i]+"price";
+                    //text.className ="text1-2"; 
+                    text.innerHTML = "A";
+                    td.appendChild(text);
+                    /*
+                    for (k = 0; k < a.length; i++) 
+                        {
+                         if(a[k]['name']==Object.keys(stocks)[i])
+                         {
+                             td.appendChild(document.createTextNode(a[k]['last']));
+                         }
+                        }
+                        */
+                }
+                
+                 else
+                {   
+                   var text = document.createElement("p");
+                    text.id = Object.keys(stocks)[i]+"var";
+                    //text.className ="text1-2"; 
+                    text.innerHTML = "A";
+                    td.appendChild(text);
+                }
+            
+                
+                
+                //td.style.border = "1px solid black";
+               
+                   
+        }
+    }
+    body.appendChild(tbl);
+}
+
+//var myVar = setInterval(function(){change()},20000);
+
+var stockdata = setInterval(function(){getdata()},10000);
+
+tableCreate();
+
+var myVaro = setInterval(function(){myTimer()},1000);
+
+function myTimer() {
+    var d = new Date();
+    document.getElementById("demo").innerHTML = d.toLocaleTimeString();
+}
+
+function change(){
+    for(var i = 0; i < Object.keys(stocks).length; i++)
+    {
+        for(var j = 0; j < final.length; i++)
+        {   var idd = Object.keys(stocks)[i]+"price";
+            if(final[j]['name']==Object.keys(stocks)[i])
+            {
+                document.getElementById(idd).innerHTML = final[j]['last']
+            }
+            
+        }
+    }
+}
+
+function getdata(){
+    $.getJSON( "https://apify.heroku.com/api/nasdaq100.json?callback=?", function( json ) {
+                        a = $.parseJSON(json);
+                        final.length=0
+                        for(var i = 0; i < Object.keys(stocks).length; i++)
+                        {
+                            for (var j =0; j< a.length; j++)
+                            {   
+                                var name = a[j]['name'].split(" ");
+                                
+                                if(Object.keys(stocks)[i]==name[0])
+                                {
+                                    final.push(a[j]);
+                                }
+                            }
+                        }
+                        console.log(final);
+                        //document.getElementById("GOOGLEprice").innerHTML = final[0]['last']
+                        
+                        for(var k = 0; k < Object.keys(stocks).length; k++)
+                        {
+                            for(var l = 0; l < final.length; l++)
+                            {   var idd = Object.keys(stocks)[k]+"price";
+                                var iddd = Object.keys(stocks)[k]+"var";
+                                console.log(idd);
+                                if(final[l]['name'].split(" ")[0]==Object.keys(stocks)[k])
+                                {   console.log([idd,iddd])
+                                    document.getElementById(idd).innerHTML = final[l]['last']
+                                    document.getElementById(iddd).innerHTML = final[l]['var']
+                                }
+                                
+                            }
+                        }
+                        });
+}
+
+
+</script>
+
+<p>A script on this page starts this clock:</p>
+
+<p id="demo"></p>
+
+<button onclick="clearInterval(myVaro)">Stop time</button>
+
+</body>
+</html>

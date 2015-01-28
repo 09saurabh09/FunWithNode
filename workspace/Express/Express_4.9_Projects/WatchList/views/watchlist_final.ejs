@@ -1,0 +1,180 @@
+<html>
+<head>
+<style>
+.table, .td, .th {
+    border: 1px solid black;
+    max-height:10px;
+    width:350px;
+    background:#FFFFFF;
+    transition: background 2s linear;
+    -webkit-transition: background 2s linear;
+    -moz-transition: background 2s linear;
+}
+
+.th {
+    background-color: black;
+    color: white;
+}
+.loss{
+    color:red;
+}
+.profit{
+    color:green;
+}
+.change_price{
+    background:#FFFFFF;
+    transition: background 2s linear;
+    -webkit-transition: background 2s linear;
+    -moz-transition: background 2s linear;
+}
+</style>
+</head>
+
+<body>
+
+<script src="//code.jquery.com/jquery-2.0.3.js"></script>
+
+<script>
+
+var stocks = {'GOOGLE':'goog',
+    'MICROSOFT':'msft',
+    'FACEBOOK':'fb',
+    'DIRECTV':'DTV '
+};
+var final = [];
+var red= "#FF0000";
+var green = "#008000";
+var white = "#FFFFFF";
+
+function tableCreate(){
+    var body = document.body,
+        tbl  = document.createElement('table');
+
+    var header = tbl.createTHead(); 
+    tbl.className ="table";
+    var row = header.insertRow();
+    row.className ="th"; 
+    var th = row.insertCell();
+    
+    // Ceating headings
+    th.innerHTML = "<b>Name</b>";
+    th = row.insertCell();
+    th.innerHTML = "<b>Symbol</b>";
+    th = row.insertCell();
+    th.innerHTML = "<b>Price</b>";
+    th = row.insertCell();
+    th.innerHTML = "<b>Var</b>";
+    
+    for(var i = 0; i < Object.keys(stocks).length; i++){
+        var tr = tbl.insertRow();
+        for(var j = 0; j < 4; j++){
+                var td = tr.insertCell();
+                if(j==0)
+                {
+                    td.appendChild(document.createTextNode(Object.keys(stocks)[i]));//First Column is stock Name
+                }
+                else if (j==1)
+                {
+                    td.appendChild(document.createTextNode(stocks[Object.keys(stocks)[i]]));//Second column for symbol
+                }
+                
+                else if (j==2)
+                {   
+                    //This column is for reatime price
+                    var text = document.createElement("p");
+                    text.id = Object.keys(stocks)[i]+"price";// Giving unique id
+                    //text.className ="text1-2"; 
+                    text.innerHTML = "10";
+                    td.appendChild(text);
+                }
+                
+                 else
+                {   
+                    //Column for variance
+                    var text = document.createElement("p");
+                    text.id = Object.keys(stocks)[i]+"var";//Giving Unique id
+                    text.innerHTML = "A";
+                    td.appendChild(text);
+                }
+        }
+    }
+    body.appendChild(tbl);
+}
+
+tableCreate();//function for creatong table, will execute in start
+
+//var stockdata = setInterval(function(){getdata()},10000);// periodically fetches data and update cells
+
+
+
+//We have to create a query so that all the data can be fetched at once
+var query="";
+
+for(var i = 0; i < Object.keys(stocks).length; i++)
+{   
+     if(i==Object.keys(stocks).length-1)
+     {
+         query = query+stocks[Object.keys(stocks)[i]];
+     }
+     else
+     {   
+         query = query+stocks[Object.keys(stocks)[i]] +'%2C';
+     }
+
+}
+
+var quotedata = setInterval(function(){getquotes()},10000);// periodically fetches data and update cells
+
+function getquotes(){
+    var url = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20"+
+                "where%20symbol%20in%20%28%22"+query+"%22%29&format=json&diagnostics="+
+                "true&env=store%3A%2F%2Fdatatables.org%2Falltableswithkeys&callback="
+          
+    $.ajax({
+      url: url,
+      dataType: 'json',
+      success:function( json ) {
+          
+          for(var i = 0; i < Object.keys(stocks).length; i++){
+                var price_tag = Object.keys(stocks)[i]+"price";// For accessing element of this id  
+                var var_tag = Object.keys(stocks)[i]+"var";//same
+                
+                var str = document.getElementById(price_tag).innerHTML// To get previous realtime price
+                document.getElementById(price_tag).className ="change_price";
+                if(parseFloat(str.substring(1, str.len))<parseFloat(json.query.results.quote[i].AskRealtime))
+                {
+                    //Share price increases since last tick
+                    document.getElementById(price_tag).style.background=green;
+                    //setTimeout(function() { document.getElementById(price_tag).style.background=white;}, 1000);
+                }
+                else if(parseFloat(str.substring(1, str.len))>parseFloat(json.query.results.quote[i].AskRealtime))
+                {   
+                    //Share price decreases since last tick
+                    document.getElementById(price_tag).style.background=red;
+                    //setTimeout(function() { document.getElementById(price_tag).style.background=white;}, 1000);
+                }
+                // Updating current price and variance
+                document.getElementById(price_tag).innerHTML ="$"+ parseFloat(json.query.results.quote[i].AskRealtime).toFixed(2);
+                document.getElementById(var_tag).innerHTML = (json.query.results.quote[i].ChangeinPercent);
+                //console.log([json.query.results.quote.AskRealtime,json.query.results.quote[i].ChangeinPercent]);
+                
+                   if(json.query.results.quote[i].ChangeinPercent[0]=="-")
+                        {   
+                            document.getElementById(var_tag).className ="loss";
+                        }
+                    else 
+                        {
+                            document.getElementById(var_tag).className ="profit";
+                            //document.getElementById(price_tag).className ="profit_price";
+                            //$('.profit_price').css('background', red);
+                            //setTimeout(function() { $('.profit_price').css('background', white);}, 2000);
+                        }
+          }
+      }
+    });
+}
+
+
+</script>
+</body>
+</html>

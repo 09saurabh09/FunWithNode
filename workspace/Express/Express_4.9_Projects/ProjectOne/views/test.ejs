@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+      <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+      <script>
+          $(document).ready(function(){
+              $("p").click(function(){
+                  $(this).hide();
+              });
+
+              $("#flip").click(function(){
+                  $("#panel").slideDown("slow");
+              });
+          });
+      </script>
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <p>Welcome to <%= title %></p>
+
+    <p>If you click on me, I will disappear.</p>
+    <p>Click me away!</p>
+    <p>Click me too!</p>
+    <div id="flip">Click to slide down panel</div>
+    <div id="panel">Hello world!</div>
+  </body>
+</html>

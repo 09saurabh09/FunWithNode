@@ -1,0 +1,135 @@
+<html>
+<head>
+<style>
+.table, .td, .th {
+    border: 1px solid black;
+    width:350px;
+}
+
+.th {
+    background-color: black;
+    color: white;
+}
+.loss{
+    border: 1px solid black;
+    background-color:red;
+}
+.profit{
+    border: 1px solid black;
+    background-color:green;
+}
+</style>
+</head>
+
+<body>
+
+<script src="//code.jquery.com/jquery-2.0.3.js"></script>
+
+<script>
+
+var stocks = {'GOOGLE':'goog',
+    'MICROSOFT':'msft',
+    'FACEBOOK':'fb'
+};
+var final = [];
+
+function tableCreate(){
+    var body = document.body,
+        tbl  = document.createElement('table');
+
+    var header = tbl.createTHead(); 
+    tbl.className ="table";
+    var row = header.insertRow();
+    row.className ="th"; 
+    var th = row.insertCell();
+    
+    th.innerHTML = "<b>Name</b>";
+    th = row.insertCell();
+    th.innerHTML = "<b>Symbol</b>";
+    th = row.insertCell();
+    th.innerHTML = "<b>Price</b>";
+    th = row.insertCell();
+    th.innerHTML = "<b>Var</b>";
+    
+    for(var i = 0; i < Object.keys(stocks).length; i++){
+        var tr = tbl.insertRow();
+        for(var j = 0; j < 4; j++){
+                var td = tr.insertCell();
+                if(j==0)
+                {
+                    td.appendChild(document.createTextNode(Object.keys(stocks)[i]));
+                }
+                else if (j==1)
+                {
+                    td.appendChild(document.createTextNode(stocks[Object.keys(stocks)[i]]));
+                }
+                
+                else if (j==2)
+                {   var text = document.createElement("p");
+                    text.id = Object.keys(stocks)[i]+"price";
+                    //text.className ="text1-2"; 
+                    text.innerHTML = "A";
+                    td.appendChild(text);
+                
+                }
+                
+                 else
+                {   
+                   var text = document.createElement("p");
+                    text.id = Object.keys(stocks)[i]+"var";
+                    text.innerHTML = "A";
+                    td.appendChild(text);
+                }
+        }
+    }
+    body.appendChild(tbl);
+}
+
+tableCreate();
+
+var stockdata = setInterval(function(){getdata()},10000);
+
+function getdata(){
+    $.getJSON( "https://apify.heroku.com/api/nasdaq100.json?callback=?", function( json ) {
+                        a = $.parseJSON(json);
+                        final.length=0
+                        for(var i = 0; i < Object.keys(stocks).length; i++)
+                        {
+                            for (var j =0; j< a.length; j++)
+                            {   
+                                var name = a[j]['name'].split(" ");
+                                
+                                if(Object.keys(stocks)[i]==name[0])
+                                {
+                                    final.push(a[j]);
+                                }
+                            }
+                        }
+                        for(var k = 0; k < Object.keys(stocks).length; k++)
+                        {
+                            for(var l = 0; l < final.length; l++)
+                            {   var price_tag = Object.keys(stocks)[k]+"price";
+                                var var_tag = Object.keys(stocks)[k]+"var";
+                                if(final[l]['name'].split(" ")[0]==Object.keys(stocks)[k])
+                                {   
+                                    document.getElementById(price_tag).innerHTML ="$"+ parseFloat(final[l]['last'].replace(",",".")).toFixed(2);
+                                    document.getElementById(var_tag).innerHTML = final[l]['var'].replace(",",".");
+                                    if(final[l]['var'].replace(",",".")[0]=="-")
+                                    {
+                                        document.getElementById(var_tag).className ="loss";
+                                    }
+                                    else {
+                                        document.getElementById(var_tag).className ="profit";
+                                    }
+                         
+                                }
+                                
+                            }
+                        }
+                        });
+}
+
+
+</script>
+</body>
+</html>

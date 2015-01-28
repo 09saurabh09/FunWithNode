@@ -1,0 +1,32 @@
+else if (j==2)
+                {  
+                   console.log("hi");
+                   $.ajax({
+                    url: url,
+                    type: "GET",
+
+                 
+                    // tell jQuery we're expecting JSONP
+                    dataType: "jsonp",
+                    crossDomain: true,
+    
+                 
+                 
+                    // work with the response
+                    success: function( response ) {
+                        console.log( response ); // server response
+                    },
+                    error: function() { alert('Failed!'); }
+});
+                }
+               else
+               {
+                   
+                 
+                    $.getJSON("http://betawebapi.dowjones.com/fintech/data/api/v1/quotes/goog",function(result){
+                     console.log(result);
+                        });
+
+
+               }
+                

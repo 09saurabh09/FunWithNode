@@ -1,0 +1,179 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Tic Tac Toe</title>
+		<link rel="stylesheet" type="text/css" href="/stylesheets/css3.css"/>
+		<script src="//cdn.socket.io/socket.io-1.2.0.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+		<script type="text/javascript">
+		
+	
+
+		//Global Variables
+		var painted;
+		var content;
+		var winningCombinations;
+		var turn = 0;
+		var theCanvas;
+		var c;
+		var cxt;
+		var squaresFilled = 0;
+		var w;
+		var y;
+
+	
+        
+        
+        var address = document.location.href;
+        var randomString = Math.random().toString(36).substring(2,7);
+        //console.log([address,randomString]);
+        
+        var addressNew = address+'/'+randomString;
+        console.log(addressNew);
+        var socket;
+        var data = "key="+randomString;
+        if (address === 'https://nodeone-saurabh0909.c9.io/ttt'){
+        	socket = io({ query: data });
+        } 
+        else {
+        	
+        	var str1 = document.location.href;
+		    var str2 = "https://nodeone-saurabh0909.c9.io/ttt";
+		    var l1 = str1.length;
+		    var l2 = str2.length+1;
+		    var res = str1.substring(l2, l1);
+		    data = "key="+res;
+        	socket = io({ query: data });
+        }
+        console.log('check 1', socket.connected);
+        socket.on('connect', function() {
+         console.log('check 2', socket.connected);
+        });
+
+		//Instanciate Arrays
+		window.onload=function(){
+			
+			painted = new Array();
+			content = new Array();
+			winningCombinations = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+
+			for(var l = 0; l <= 8; l++){
+			painted[l] = false;
+			content[l]='';
+			}
+		}
+		
+		// Method fornviting
+		function invite() {
+			 if (address === 'https://nodeone-saurabh0909.c9.io/ttt'){
+        	 alert("Send this link to your friend to play: \n\n"+addressNew);
+        	 socket.emit('invite', {
+                    uid:randomString
+                });
+       		 }
+			
+		}
+		
+		 socket.on('chatm',function(msg) {
+                //$('#messages').append($('<li>').text(person+" :"+msg.message));
+                console.log(msg.message);
+                canvasClicked(msg.message,'nooo');
+                console.log("hi");
+            });
+		
+
+		//Game methods
+		function canvasClicked(canvasNumber,bool){
+			theCanvas = "canvas"+canvasNumber;
+			c = document.getElementById(theCanvas);
+			cxt = c.getContext("2d");
+            
+             if(bool != 'nooo') {
+                console.log(canvasNumber);
+                socket.emit('turn', {message:canvasNumber});
+             }
+            
+           
+            
+			if(painted[canvasNumber-1] ==false){
+				if(turn%2==0){
+					cxt.beginPath();
+					cxt.moveTo(10,10);
+					cxt.lineTo(40,40);
+					cxt.moveTo(40,10);
+					cxt.lineTo(10,40);
+					cxt.stroke();
+					cxt.closePath();
+					content[canvasNumber-1] = 'X';
+				}
+
+				else{
+					cxt.beginPath();
+					cxt.arc(25,25,20,0,Math.PI*2,true);
+					cxt.stroke();
+					cxt.closePath();
+					content[canvasNumber-1] = 'O';
+				}
+
+				turn++;
+				painted[canvasNumber-1] = true;
+				squaresFilled++;
+				checkForWinners(content[canvasNumber-1]);
+
+				if(squaresFilled==9){
+					alert("THE GAME IS OVER!");
+					location.reload(true);
+				}
+			
+			}
+			else{
+				alert("THAT SPACE IS ALREADY OCCUPIED WITH YOUR HEART!");
+			}
+
+		}
+
+		function checkForWinners(symbol){
+			
+			for(var a = 0; a < winningCombinations.length; a++){
+			if(content[winningCombinations[a][0]]==symbol&&content[winningCombinations[a][1]]==	symbol&&content[winningCombinations[a][2]]==symbol){
+				alert(symbol+ " WON!");
+				playAgain();
+			}
+			}
+
+		}
+
+		function playAgain(){
+			y=confirm("PLAY AGAIN?");
+			if(y==true){
+				alert("OKAY! ^^/>");
+				location.reload(true);
+			}
+			else{
+				alert("SO LONG,SUCKER!");
+		}
+
+		}
+
+
+		</script>
+	</head>
+	<body>
+		<div id ="box">
+			<h1>THE</h1><h2> VERY BASIC</h2><h3> TIC - TAC - TOE!</h3>
+			<canvas id = "canvas1"  width="50" height="50" style="border:1px solid black" onclick="canvasClicked(1)"></canvas>
+			<canvas id = "canvas2"  width="50" height="50" style="border:1px solid black" onclick="canvasClicked(2)"></canvas>
+			<canvas id = "canvas3"  width="50" height="50" style="border:1px solid black" onclick="canvasClicked(3)"></canvas><br/>
+			<canvas id = "canvas4"  width="50" height="50" style="border:1px solid black" onclick="canvasClicked(4)"></canvas>
+			<canvas id = "canvas5"  width="50" height="50" style="border:1px solid black" onclick="canvasClicked(5)"></canvas>
+			<canvas id = "canvas6"  width="50" height="50" style="border:1px solid black" onclick="canvasClicked(6)"></canvas><br/>
+			<canvas id = "canvas7"  width="50" height="50" style="border:1px solid black" onclick="canvasClicked(7)"></canvas>
+			<canvas id = "canvas8"  width="50" height="50" style="border:1px solid black" onclick="canvasClicked(8)"></canvas>
+			<canvas id = "canvas9"  width="50" height="50" style="border:1px solid black" onclick="canvasClicked(9)"></canvas>
+		</div>
+		<br/>
+		 <button onclick="invite()" type="button">Invite your friend</button> 
+	</body>
+</html>
+
+
